@@ -1,0 +1,4 @@
+---
+deployment:
+  tasks:
+    - /bin/echo "InstaLead deployment up to date"
