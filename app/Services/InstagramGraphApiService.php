@@ -30,13 +30,10 @@ class InstagramGraphApiService
      */
     public function getAuthorizationUrl(string $state = ''): string
     {
-        $scopes = [
-            'instagram_basic',
-            'instagram_manage_insights',
-            'pages_show_list',
-            'pages_read_engagement',
-            'business_management',
-        ];
+        $configuredScopes = config('services.meta.scopes', env('META_SCOPES', 'instagram_basic,pages_show_list,pages_read_engagement,business_management'));
+        $scopes = is_array($configuredScopes)
+            ? $configuredScopes
+            : array_filter(array_map('trim', explode(',', $configuredScopes)));
 
         $params = http_build_query([
             'client_id' => $this->appId,

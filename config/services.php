@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'meta' => [
+        'app_id' => env('META_APP_ID'),
+        'app_secret' => env('META_APP_SECRET'),
+        'redirect_uri' => env('META_REDIRECT_URI', 'https://insta.thenexteck.com/oauth/instagram/callback'),
+        'graph_version' => env('META_GRAPH_VERSION', 'v21.0'),
+        'scopes' => env('META_SCOPES', 'instagram_basic,pages_show_list,pages_read_engagement,business_management'),
+        'webhook_verify_token' => env('META_WEBHOOK_VERIFY_TOKEN', 'instalead_webhook_2026'),
+    ],
+
 ];
