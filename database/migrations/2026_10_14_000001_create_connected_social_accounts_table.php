@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('account_id')->index(); // IG Business ID or Page ID
             $table->string('username')->nullable();
             $table->string('name')->nullable();
-            $table->string('profile_picture_url')->nullable();
+            $table->text('profile_picture_url')->nullable();
             $table->string('account_type')->default('BUSINESS'); // BUSINESS, CREATOR
             $table->text('access_token');
             $table->timestamp('token_expires_at')->nullable();

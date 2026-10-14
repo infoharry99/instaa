@@ -50,7 +50,7 @@
             @forelse($accounts as $acc)
             <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center space-x-4">
-                    <img src="{{ $acc->profile_picture_url ?? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200' }}" 
+                    <img src="{{ $acc->meta_data['full_profile_picture_url'] ?? $acc->profile_picture_url ?? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200' }}" 
                          alt="{{ $acc->username }}" 
                          class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div>

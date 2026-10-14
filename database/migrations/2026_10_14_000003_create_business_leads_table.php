@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('business_name')->index();
             $table->string('instagram_username')->nullable()->index();
             $table->string('instagram_profile_url')->nullable();
-            $table->string('profile_picture_url', 500)->nullable();
+            $table->text('profile_picture_url')->nullable();
             $table->text('business_description')->nullable();
             $table->string('category')->index();
             $table->string('city')->nullable()->index();

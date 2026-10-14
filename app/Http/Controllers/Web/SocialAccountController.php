@@ -77,32 +77,56 @@ class SocialAccountController extends Controller
                     ->with('warning', 'Connected to Meta, but no Instagram Business or Creator account was linked to your Facebook Pages. Please convert your Instagram account to Professional/Business and link it to a Page.');
             }
 
+            // Ensure profile_picture_url is TEXT in database
+            try {
+                \Illuminate\Support\Facades\DB::statement('ALTER TABLE connected_social_accounts MODIFY profile_picture_url TEXT NULL');
+            } catch (\Throwable $t) {
+                // Ignore if DB user lacks ALTER privilege
+            }
+
             foreach ($igAccounts as $acc) {
-                ConnectedSocialAccount::updateOrCreate(
-                    [
-                        'company_id' => $company->id,
-                        'platform' => 'instagram',
-                        'account_id' => $acc['ig_id'],
+                $profilePic = $acc['profile_picture_url'] ?? null;
+                $payload = [
+                    'user_id' => $user->id,
+                    'username' => $acc['username'],
+                    'name' => $acc['name'],
+                    'profile_picture_url' => $profilePic,
+                    'account_type' => 'BUSINESS',
+                    'access_token' => $acc['page_token'],
+                    'token_expires_at' => Carbon::now()->addSeconds($expiresIn),
+                    'is_connected' => true,
+                    'scopes' => ['instagram_basic', 'pages_read_engagement', 'business_management'],
+                    'meta_data' => [
+                        'followers_count' => $acc['followers_count'],
+                        'follows_count' => $acc['follows_count'],
+                        'media_count' => $acc['media_count'],
+                        'page_id' => $acc['page_id'],
+                        'page_name' => $acc['page_name'],
+                        'full_profile_picture_url' => $profilePic,
                     ],
-                    [
-                        'user_id' => $user->id,
-                        'username' => $acc['username'],
-                        'name' => $acc['name'],
-                        'profile_picture_url' => $acc['profile_picture_url'],
-                        'account_type' => 'BUSINESS',
-                        'access_token' => $acc['page_token'],
-                        'token_expires_at' => Carbon::now()->addSeconds($expiresIn),
-                        'is_connected' => true,
-                        'scopes' => ['instagram_basic', 'pages_read_engagement', 'business_management'],
-                        'meta_data' => [
-                            'followers_count' => $acc['followers_count'],
-                            'follows_count' => $acc['follows_count'],
-                            'media_count' => $acc['media_count'],
-                            'page_id' => $acc['page_id'],
-                            'page_name' => $acc['page_name'],
+                ];
+
+                try {
+                    ConnectedSocialAccount::updateOrCreate(
+                        [
+                            'company_id' => $company->id,
+                            'platform' => 'instagram',
+                            'account_id' => $acc['ig_id'],
                         ],
-                    ]
-                );
+                        $payload
+                    );
+                } catch (\Throwable $dbEx) {
+                    // Truncation fallback if column is still VARCHAR(255) and ALTER failed
+                    $payload['profile_picture_url'] = !empty($profilePic) ? substr($profilePic, 0, 250) : null;
+                    ConnectedSocialAccount::updateOrCreate(
+                        [
+                            'company_id' => $company->id,
+                            'platform' => 'instagram',
+                            'account_id' => $acc['ig_id'],
+                        ],
+                        $payload
+                    );
+                }
             }
 
             AuditLogService::log(
