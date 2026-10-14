@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DeployController;
 use App\Http\Controllers\Web\AdminController;
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\CommunicationController;
@@ -11,6 +12,16 @@ use App\Http\Controllers\Web\LeadDiscoveryController;
 use App\Http\Controllers\Web\LeadListController;
 use App\Http\Controllers\Web\SocialAccountController;
 use Illuminate\Support\Facades\Route;
+
+// Shared Hosting Deployment & Maintenance Routes (Protected by Secret Key)
+Route::prefix('deploy')->group(function () {
+    Route::get('/', [DeployController::class, 'index'])->name('deploy.index');
+    Route::get('/migrate', [DeployController::class, 'migrate'])->name('deploy.migrate');
+    Route::get('/migrate-seed', [DeployController::class, 'migrateSeed'])->name('deploy.migrate_seed');
+    Route::get('/storage-link', [DeployController::class, 'storageLink'])->name('deploy.storage_link');
+    Route::get('/clear-cache', [DeployController::class, 'clearCache'])->name('deploy.clear_cache');
+    Route::get('/composer', [DeployController::class, 'composerInstall'])->name('deploy.composer');
+});
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
