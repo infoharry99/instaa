@@ -195,4 +195,44 @@ class AdminController extends Controller
 
         return view('admin.audit_logs', compact('logs'));
     }
+
+    public function clearDemoData()
+    {
+        $user = Auth::user();
+        if (!$user->isAdmin()) {
+            abort(403);
+        }
+
+        $companyId = $user->company_id;
+
+        // Delete mock social accounts
+        \App\Models\ConnectedSocialAccount::where('company_id', $companyId)
+            ->where(function($q) {
+                $q->where('access_token', 'like', 'EAAXmock%')
+                  ->orWhere('username', 'omnimediagrowth');
+            })
+            ->delete();
+
+        // Delete all leads
+        \App\Models\BusinessLead::where('company_id', $companyId)->delete();
+
+        // Delete custom lists
+        \App\Models\LeadList::where('company_id', $companyId)->delete();
+
+        // Delete followups
+        \App\Models\FollowUp::where('company_id', $companyId)->delete();
+
+        // Delete communication logs
+        \App\Models\CommunicationLog::where('company_id', $companyId)->delete();
+
+        // Reset used leads count
+        $user->company->update(['leads_used_count' => 0]);
+
+        AuditLogService::log(
+            action: 'system.demo_data_cleared',
+            description: 'Cleared demo leads, mock social connections, and sample CRM data.'
+        );
+
+        return back()->with('success', 'All dummy leads and mock social connections have been removed successfully.');
+    }
 }

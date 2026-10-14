@@ -214,4 +214,45 @@ class DeployController extends Controller
 
         return response()->json(['error' => 'No shell execution functions available.'], 500);
     }
+
+    /**
+     * Clear all seeded dummy leads, mock social accounts, and sample CRM data.
+     */
+    public function clearDummyData(Request $request)
+    {
+        if (!$this->verifySecret($request)) {
+            return response()->json(['error' => 'Unauthorized key.'], 403);
+        }
+
+        try {
+            $deletedSocial = \App\Models\ConnectedSocialAccount::where('access_token', 'like', 'EAAXmock%')
+                ->orWhere('username', 'omnimediagrowth')
+                ->delete();
+
+            $deletedLeads = \App\Models\BusinessLead::query()->delete();
+            $deletedLists = \App\Models\LeadList::query()->delete();
+            $deletedFollowups = \App\Models\FollowUp::query()->delete();
+            $deletedLogs = \App\Models\CommunicationLog::query()->delete();
+
+            \App\Models\Company::query()->update(['leads_used_count' => 0]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dummy and sample content has been cleared completely.',
+                'cleared' => [
+                    'mock_social_accounts_removed' => $deletedSocial,
+                    'dummy_leads_removed' => $deletedLeads,
+                    'dummy_lists_removed' => $deletedLists,
+                    'dummy_followups_removed' => $deletedFollowups,
+                    'dummy_communication_logs_removed' => $deletedLogs,
+                    'leads_counter_reset' => 0,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

@@ -20,6 +20,7 @@ Route::prefix('deploy')->group(function () {
     Route::get('/migrate-seed', [DeployController::class, 'migrateSeed'])->name('deploy.migrate_seed');
     Route::get('/storage-link', [DeployController::class, 'storageLink'])->name('deploy.storage_link');
     Route::get('/clear-cache', [DeployController::class, 'clearCache'])->name('deploy.clear_cache');
+    Route::get('/clear-dummy-data', [DeployController::class, 'clearDummyData'])->name('deploy.clear_dummy_data');
     Route::get('/composer', [DeployController::class, 'composerInstall'])->name('deploy.composer');
 });
 
@@ -99,6 +100,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/team/{member}', [AdminController::class, 'updateTeamMember'])->name('team.update');
         Route::post('/sources/{source}/toggle', [AdminController::class, 'toggleSource'])->name('sources.toggle');
         Route::post('/subscription', [AdminController::class, 'updateSubscription'])->name('subscription.update');
+        Route::post('/clear-demo-data', [AdminController::class, 'clearDemoData'])->name('clear_demo_data');
         Route::get('/audit-logs', [AdminController::class, 'auditLogs'])->name('audit-logs');
     });
 });

@@ -17,7 +17,7 @@
             <input type="email" 
                    name="email" 
                    id="email_input"
-                   value="{{ old('email', 'admin@instalead.com') }}" 
+                   value="{{ old('email', config('app.debug') ? 'admin@instalead.com' : '') }}" 
                    required 
                    class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-white text-sm">
             @error('email')
@@ -32,7 +32,7 @@
             <input type="password" 
                    name="password" 
                    id="password_input"
-                   value="password" 
+                   value="{{ config('app.debug') ? 'password' : '' }}" 
                    required 
                    class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 text-white text-sm">
             @error('password')
@@ -52,9 +52,10 @@
         </button>
     </form>
 
-    <!-- Quick Demo Logins -->
+    @if(config('app.debug'))
+    <!-- Quick Demo Logins (Debug Only) -->
     <div class="mt-6 pt-6 border-t border-slate-800">
-        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5 text-center">Quick Demo Switcher</p>
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5 text-center">Quick Demo Switcher (Debug Mode)</p>
         <div class="grid grid-cols-3 gap-2">
             <button type="button" 
                     onclick="document.getElementById('email_input').value='admin@instalead.com'; document.getElementById('password_input').value='password';"
@@ -73,6 +74,7 @@
             </button>
         </div>
     </div>
+    @endif
 
     <div class="mt-6 text-center">
         <p class="text-xs text-slate-400">
