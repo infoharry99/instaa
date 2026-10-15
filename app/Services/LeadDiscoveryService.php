@@ -349,7 +349,64 @@ class LeadDiscoveryService
             return true;
         });
 
-        return array_values($results);
+        $results = array_values($results);
+
+        // Direct Public Instagram Account Lookup (@username, URL, or handle keyword)
+        $cleanHandle = null;
+        if (!empty($keyword)) {
+            $testHandle = str_replace(['https://', 'http://', 'www.', 'instagram.com/', '@', '/'], '', $keyword);
+            $testHandle = strtolower(trim($testHandle));
+            if (preg_match('/^[a-zA-Z0-9._]{2,30}$/', $testHandle)) {
+                $cleanHandle = $testHandle;
+            }
+        }
+
+        if ($cleanHandle) {
+            $alreadyExists = false;
+            foreach ($results as $item) {
+                if (strtolower($item['instagram_username'] ?? '') === $cleanHandle) {
+                    $alreadyExists = true;
+                    break;
+                }
+            }
+
+            if (!$alreadyExists) {
+                $displayName = ucwords(str_replace(['.', '_', '-'], ' ', $cleanHandle));
+                $directProfile = [
+                    'business_name' => $displayName,
+                    'instagram_username' => $cleanHandle,
+                    'instagram_profile_url' => "https://instagram.com/{$cleanHandle}",
+                    'profile_picture_url' => "https://ui-avatars.com/api/?name=" . urlencode($displayName) . "&background=f43f5e&color=fff&size=200&bold=true",
+                    'business_description' => "Public Instagram profile @{$cleanHandle}. Click 'Chat on Instagram' to launch Direct Message chat immediately or save to CRM.",
+                    'category' => $category ?: 'Business / Creator Profile',
+                    'city' => $city ?: 'Public Account',
+                    'state' => '',
+                    'country' => 'India',
+                    'official_website' => "https://instagram.com/{$cleanHandle}",
+                    'public_email' => null,
+                    'public_phone' => null,
+                    'contact_person' => $displayName,
+                    'source_name' => 'Instagram Public Search',
+                    'is_direct_search' => true,
+                ];
+
+                array_unshift($results, $directProfile);
+            }
+        }
+
+        // Add standardized communication deep links to all discovered results
+        foreach ($results as &$item) {
+            $username = $item['instagram_username'] ?? '';
+            $item['instagram_direct_url'] = !empty($username) ? "https://ig.me/m/{$username}" : null;
+            $item['instagram_profile_url'] = $item['instagram_profile_url'] ?? "https://instagram.com/{$username}";
+            
+            $phone = !empty($item['public_phone']) ? preg_replace('/[^0-9]/', '', $item['public_phone']) : null;
+            $msg = urlencode("Hello " . ($item['contact_person'] ?? $item['business_name']) . ", I came across your Instagram profile @" . $username . ".");
+            $item['whatsapp_url'] = !empty($phone) ? "https://wa.me/{$phone}?text={$msg}" : null;
+        }
+        unset($item);
+
+        return $results;
     }
 
     /**
