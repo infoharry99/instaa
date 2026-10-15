@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
 
     // Connected Instagram & Meta Accounts
     Route::get('/social-accounts', [SocialAccountController::class, 'index'])->name('social.index');
+    Route::get('/social', [SocialAccountController::class, 'index'])->name('social.alias');
     Route::get('/oauth/instagram/connect', [SocialAccountController::class, 'redirectToMeta'])->name('social.connect');
     Route::get('/oauth/instagram/callback', [SocialAccountController::class, 'handleMetaCallback'])->name('social.callback');
     Route::delete('/social-accounts/{account}', [SocialAccountController::class, 'disconnect'])->name('social.disconnect');
