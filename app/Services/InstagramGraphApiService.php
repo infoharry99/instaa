@@ -143,4 +143,36 @@ class InstagramGraphApiService
 
         return $response->json();
     }
+
+    /**
+     * Send direct message via Meta Instagram Messaging API.
+     */
+    public function sendDirectMessage(string $pageOrIgId, string $recipientId, string $messageText, string $accessToken): array
+    {
+        $response = Http::withToken($accessToken)
+            ->post("{$this->graphBaseUrl}/{$pageOrIgId}/messages", [
+                'recipient' => [
+                    'id' => $recipientId,
+                ],
+                'message' => [
+                    'text' => $messageText,
+                ],
+            ]);
+
+        if ($response->failed()) {
+            Log::warning("Instagram send message failed", [
+                'response' => $response->json(),
+                'status' => $response->status(),
+            ]);
+            return [
+                'success' => false,
+                'error' => $response->json('error.message', 'Could not send message via Meta API'),
+            ];
+        }
+
+        return [
+            'success' => true,
+            'data' => $response->json(),
+        ];
+    }
 }

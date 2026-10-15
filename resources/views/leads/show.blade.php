@@ -10,6 +10,16 @@
     selectedTemplateText: '',
     insertTemplate(body) {
         this.selectedTemplateText = body;
+    },
+    scrollToChat() {
+        const el = document.getElementById('live-chat-card');
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                const input = document.getElementById('chat-message-input');
+                if (input) input.focus();
+            }, 350);
+        }
     }
 }">
 
@@ -95,24 +105,36 @@
             <!-- Quick Communication Trigger Pills -->
             <div class="flex flex-wrap md:flex-col gap-2 shrink-0">
                 @if($lead->instagram_username)
-                <!-- Direct Instagram DM Chat (ig.me) -->
-                <a href="https://ig.me/m/{{ $lead->instagram_username }}" 
-                   target="_blank" 
-                   rel="noopener noreferrer" 
-                   class="inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-rose-500 to-amber-500 text-white text-xs font-bold shadow-md shadow-rose-500/20 hover:opacity-90 transition-opacity">
+                <!-- In-Platform Live Chat (Primary) -->
+                <button type="button" 
+                        @click="scrollToChat()" 
+                        class="inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-rose-500 to-amber-500 text-white text-xs font-bold shadow-md shadow-rose-500/25 hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                    </span>
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                     </svg>
-                    <span>Chat on Instagram (DM)</span>
-                </a>
+                    <span>In-Platform Live Chat</span>
+                </button>
 
-                <!-- Open Profile -->
-                <a href="{{ $lead->instagram_profile_url ?? 'https://instagram.com/' . $lead->instagram_username }}" 
-                   target="_blank" 
-                   rel="noopener noreferrer" 
-                   class="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold transition-colors">
-                    <span>View @ {{ $lead->instagram_username }}</span>
-                </a>
+                <!-- Open Profile / Official IG link -->
+                <div class="flex items-center space-x-1.5">
+                    <a href="{{ $lead->instagram_profile_url ?? 'https://instagram.com/' . $lead->instagram_username }}" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors">
+                        <span>@ {{ $lead->instagram_username }}</span>
+                    </a>
+                    <a href="https://ig.me/m/{{ $lead->instagram_username }}" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs transition-colors"
+                       title="Open Official Instagram DM Externally">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                </div>
                 @endif
 
                 @if($lead->public_phone)
@@ -275,8 +297,266 @@
             </div>
         </div>
 
-        <!-- Right 2 Columns: Communication Logger & History & Notes & Follow-ups -->
+        <!-- Right 2 Columns: In-Platform Live Chat & Communication Suite -->
         <div class="lg:col-span-2 space-y-6">
+
+            <!-- In-Platform Live Messenger Card -->
+            <div id="live-chat-card" 
+                 class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-rose-500/30 dark:border-rose-500/20 shadow-lg shadow-rose-500/5 overflow-hidden transition-all"
+                 x-data="leadLiveChatComponent({
+                     leadId: {{ $lead->id }},
+                     leadName: {{ json_encode($lead->business_name) }},
+                     leadHandle: {{ json_encode($lead->instagram_username ?? '') }},
+                     csrfToken: '{{ csrf_token() }}',
+                     fetchUrl: '{{ route('leads.chat.messages', $lead->id) }}',
+                     sendUrl: '{{ route('leads.chat.send', $lead->id) }}',
+                     initialMessages: {{ json_encode($lead->communicationLogs->sortBy('logged_at')->map(function($l) use ($lead) {
+                         return [
+                             'id' => $l->id,
+                             'text' => $l->notes,
+                             'direction' => $l->direction,
+                             'time' => $l->logged_at ? $l->logged_at->format('h:i A') : '',
+                             'date' => $l->logged_at ? $l->logged_at->format('M d') : '',
+                             'user_name' => $l->direction === 'inbound' ? ($lead->contact_person ?? $lead->business_name) : ($l->user ? $l->user->name : 'Team'),
+                             'channel' => $l->channel,
+                             'outcome' => $l->outcome,
+                             'api_status' => is_array($l->metadata) ? ($l->metadata['api_status'] ?? null) : null,
+                         ];
+                     })->values()) }}
+                 })">
+
+                <!-- Header Bar with Live Indicator & Action Controls -->
+                <div class="px-5 py-3.5 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="relative shrink-0">
+                            <img src="{{ $lead->profile_picture_url ?? 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=120' }}" 
+                                 alt="{{ $lead->business_name }}" 
+                                 class="w-10 h-10 rounded-full object-cover border-2 border-rose-500/60 shadow-md">
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full" title="In-Platform Active"></span>
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="font-bold text-sm tracking-wide truncate max-w-[200px]">{{ $lead->business_name }}</h3>
+                                @if($lead->instagram_username)
+                                <span class="text-[11px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium">
+                                    {{ '@' . $lead->instagram_username }}
+                                </span>
+                                @endif
+                            </div>
+                            <div class="flex items-center space-x-2 text-[11px] text-slate-300 mt-0.5">
+                                <span class="flex items-center space-x-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span class="font-semibold text-emerald-400">Live In-Platform Chat</span>
+                                </span>
+                                <span>•</span>
+                                <span class="text-slate-400" x-text="messages.length + ' logged interactions'"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Channel & Refresh Controls -->
+                    <div class="flex items-center space-x-2 self-end sm:self-auto">
+                        <div class="flex items-center bg-white/10 rounded-xl p-0.5 border border-white/15 text-xs">
+                            <button type="button" 
+                                    @click="channel = 'instagram_api'"
+                                    :class="channel === 'instagram_api' ? 'bg-gradient-to-r from-purple-500 to-rose-500 text-white shadow-sm font-semibold' : 'text-slate-300 hover:text-white'"
+                                    class="px-2.5 py-1 rounded-lg transition-all text-[11px]">
+                                Instagram API
+                            </button>
+                            <button type="button" 
+                                    @click="channel = 'whatsapp'"
+                                    :class="channel === 'whatsapp' ? 'bg-emerald-600 text-white shadow-sm font-semibold' : 'text-slate-300 hover:text-white'"
+                                    class="px-2.5 py-1 rounded-lg transition-all text-[11px]">
+                                WhatsApp
+                            </button>
+                            <button type="button" 
+                                    @click="channel = 'email'"
+                                    :class="channel === 'email' ? 'bg-blue-600 text-white shadow-sm font-semibold' : 'text-slate-300 hover:text-white'"
+                                    class="px-2.5 py-1 rounded-lg transition-all text-[11px]">
+                                Email
+                            </button>
+                        </div>
+
+                        <button @click="fetchMessages()" 
+                                type="button" 
+                                class="p-2 text-slate-300 hover:text-white rounded-xl bg-white/10 hover:bg-white/20 transition-colors" 
+                                title="Refresh conversation thread">
+                            <svg class="w-4 h-4" :class="{ 'animate-spin': loading }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Messages Scrollable Window -->
+                <div class="p-4 bg-slate-50/70 dark:bg-slate-950/50 min-h-[300px] max-h-[420px] overflow-y-auto space-y-3" x-ref="chatThread">
+                    
+                    <!-- Empty State / Starters -->
+                    <template x-if="messages.length === 0">
+                        <div class="py-8 text-center space-y-4">
+                            <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-purple-500/20 to-rose-500/20 text-rose-500 flex items-center justify-center text-2xl">
+                                💬
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">No conversation history yet with @{{ $lead->instagram_username ?? $lead->business_name }}</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+                                    Send your first direct message right here inside the CRM. Click a quick starter below or type your custom message!
+                                </p>
+                            </div>
+                            
+                            <!-- Starter Prompt Chips -->
+                            <div class="flex flex-wrap justify-center gap-2 max-w-md mx-auto pt-1">
+                                <button type="button" 
+                                        @click="insertTemplate('👋 Hey {{ $lead->contact_person ?? $lead->business_name }}, saw your business profile on Instagram! Would love to explore a collaboration.')" 
+                                        class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs hover:border-rose-500 hover:text-rose-500 transition-colors shadow-xs">
+                                    👋 Collaboration Intro
+                                </button>
+                                <button type="button" 
+                                        @click="insertTemplate('💼 Hi there! Reaching out from our team regarding your {{ $lead->category }} services. Do you have a brochure/pricing guide?')" 
+                                        class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs hover:border-rose-500 hover:text-rose-500 transition-colors shadow-xs">
+                                    💼 Service Inquiry
+                                </button>
+                                <button type="button" 
+                                        @click="insertTemplate('🚀 Hello {{ $lead->business_name }}! We help businesses in {{ $lead->city ?? 'your industry' }} scale their customer outreach. Quick 2-minute chat?')" 
+                                        class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs hover:border-rose-500 hover:text-rose-500 transition-colors shadow-xs">
+                                    🚀 Growth Pitch
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Render Conversation Messages -->
+                    <template x-for="(msg, index) in messages" :key="msg.id || index">
+                        <div class="flex flex-col" :class="msg.direction === 'outbound' ? 'items-end' : 'items-start'">
+                            
+                            <!-- Message Bubble -->
+                            <div class="relative max-w-[85%] sm:max-w-[75%] rounded-2xl p-3.5 shadow-sm text-xs leading-relaxed transition-all"
+                                 :class="msg.direction === 'outbound' 
+                                    ? 'bg-gradient-to-r from-purple-600 via-rose-500 to-amber-500 text-white rounded-tr-xs' 
+                                    : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700 rounded-tl-xs'">
+                                
+                                <p class="whitespace-pre-line select-text" x-text="msg.text"></p>
+
+                                <!-- Meta & Delivery Footer -->
+                                <div class="mt-2 pt-1 flex items-center justify-between space-x-2 text-[10px]"
+                                     :class="msg.direction === 'outbound' ? 'text-white/80 border-t border-white/15' : 'text-slate-400 border-t border-slate-100 dark:border-slate-700/60'">
+                                    
+                                    <div class="flex items-center space-x-1.5">
+                                        <span class="font-semibold" x-text="msg.direction === 'outbound' ? 'You' : msg.user_name"></span>
+                                        <span>•</span>
+                                        <span x-text="msg.time"></span>
+                                        <template x-if="msg.date">
+                                            <span class="opacity-75" x-text="'(' + msg.date + ')'"></span>
+                                        </template>
+                                    </div>
+
+                                    <div class="flex items-center space-x-1 shrink-0 font-medium">
+                                        <template x-if="msg.direction === 'outbound'">
+                                            <span class="flex items-center space-x-1">
+                                                <template x-if="msg.api_status === 'sent_via_meta_api'">
+                                                    <span class="text-emerald-200 font-bold" title="Directly Sent via Meta Instagram API">✓✓ Meta API</span>
+                                                </template>
+                                                <template x-if="msg.api_status !== 'sent_via_meta_api'">
+                                                    <span class="text-white/90" title="Delivered in Platform CRM">✓ In-Platform</span>
+                                                </template>
+                                            </span>
+                                        </template>
+                                        <template x-if="msg.channel">
+                                            <span class="px-1.5 py-0.5 rounded text-[9px] uppercase font-bold"
+                                                  :class="msg.direction === 'outbound' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
+                                                  x-text="msg.channel.replace('_', ' ')"></span>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Template Quick Bar (Saved Templates) -->
+                @if($outreachTemplates->count() > 0)
+                <div class="px-4 py-2 bg-slate-100/70 dark:bg-slate-800/60 border-t border-slate-200/60 dark:border-slate-800 flex items-center space-x-2 overflow-x-auto text-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 shrink-0">Quick Templates:</span>
+                    @foreach($outreachTemplates as $tmpl)
+                    @php
+                        $customBody = str_replace(
+                            ['{{business_name}}', '{{contact_person}}', '{{city}}', '{{instagram_username}}', '{{category}}'],
+                            [$lead->business_name, $lead->contact_person ?? $lead->business_name, $lead->city ?? 'your area', $lead->instagram_username ?? '', $lead->category],
+                            $tmpl->body
+                        );
+                    @endphp
+                    <button type="button" 
+                            @click="insertTemplate({{ json_encode($customBody) }})"
+                            class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:border-rose-500 hover:text-rose-500 whitespace-nowrap text-xs transition-colors shrink-0 shadow-xs">
+                        ⚡ {{ $tmpl->name }}
+                    </button>
+                    @endforeach
+                </div>
+                @endif
+
+                <!-- Dynamic Status Alert Toast -->
+                <div x-show="statusBanner" 
+                     x-transition 
+                     class="px-4 py-2.5 text-xs flex items-center justify-between"
+                     :class="{
+                         'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-t border-emerald-200 dark:border-emerald-800': statusBanner?.type === 'success',
+                         'bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-t border-amber-200 dark:border-amber-800': statusBanner?.type === 'warning',
+                         'bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border-t border-rose-200 dark:border-rose-800': statusBanner?.type === 'error'
+                     }" 
+                     style="display: none;">
+                    <span class="font-medium" x-text="statusBanner?.text"></span>
+                    <button type="button" @click="statusBanner = null" class="text-xs font-bold opacity-75 hover:opacity-100 ml-2">✕</button>
+                </div>
+
+                <!-- Live Message Composer Input Area -->
+                <div class="p-3.5 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+                    <form @submit.prevent="sendMessage()" class="space-y-2">
+                        <div class="relative">
+                            <textarea id="chat-message-input"
+                                      x-model="newMessage"
+                                      @keydown.enter.prevent="if(!$event.shiftKey) sendMessage()"
+                                      rows="3"
+                                      placeholder="Type your message to {{ $lead->business_name }} (@{{ $lead->instagram_username }})... (Press Enter to send, Shift+Enter for new line)"
+                                      class="w-full resize-none text-xs rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 p-3 pr-10 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 leading-relaxed"></textarea>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-0.5">
+                            <!-- Outbound / Inbound Mode Selector -->
+                            <div class="flex items-center space-x-3 text-xs">
+                                <div class="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700 text-[11px]">
+                                    <button type="button" 
+                                            @click="direction = 'outbound'"
+                                            :class="direction === 'outbound' ? 'bg-white dark:bg-slate-700 text-rose-500 dark:text-rose-400 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+                                            class="px-2 py-1 rounded-md transition-all">
+                                        📤 Outbound Send
+                                    </button>
+                                    <button type="button" 
+                                            @click="direction = 'inbound'"
+                                            :class="direction === 'inbound' ? 'bg-white dark:bg-slate-700 text-indigo-500 dark:text-indigo-400 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+                                            class="px-2 py-1 rounded-md transition-all"
+                                            title="Record reply received from prospect">
+                                        📥 Log Inbound Reply
+                                    </button>
+                                </div>
+                                <span class="text-[10px] text-slate-400 hidden sm:inline">Channel: <strong class="uppercase text-slate-600 dark:text-slate-300" x-text="channel.replace('_', ' ')"></strong></span>
+                            </div>
+
+                            <!-- Send Action Button -->
+                            <button type="submit" 
+                                    :disabled="sending || !newMessage.trim()"
+                                    class="w-full sm:w-auto px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-rose-500 to-amber-500 hover:opacity-95 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold shadow-md shadow-rose-500/20 transition-all flex items-center justify-center space-x-2 shrink-0">
+                                <template x-if="sending">
+                                    <svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                </template>
+                                <template x-if="!sending">
+                                    <svg class="w-4 h-4 transform rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+                                </template>
+                                <span x-text="direction === 'outbound' ? 'Send Message' : 'Log Inbound Reply'"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             <!-- Log Communication Outreach Box -->
             <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 shadow-sm">
@@ -562,4 +842,130 @@
         </div>
     </div>
 </div>
+
+<script>
+function leadLiveChatComponent(config) {
+    return {
+        leadId: config.leadId,
+        leadName: config.leadName,
+        leadHandle: config.leadHandle,
+        csrfToken: config.csrfToken,
+        fetchUrl: config.fetchUrl,
+        sendUrl: config.sendUrl,
+        messages: config.initialMessages || [],
+        loading: false,
+        sending: false,
+        newMessage: '',
+        channel: 'instagram_api',
+        direction: 'outbound',
+        statusBanner: null,
+
+        init() {
+            this.$nextTick(() => this.scrollToBottom());
+        },
+
+        insertTemplate(text) {
+            this.newMessage = text;
+            this.$nextTick(() => {
+                const input = document.getElementById('chat-message-input');
+                if (input) {
+                    input.focus();
+                    input.setSelectionRange(input.value.length, input.value.length);
+                }
+            });
+        },
+
+        scrollToBottom() {
+            const thread = this.$refs.chatThread;
+            if (thread) {
+                thread.scrollTop = thread.scrollHeight;
+            }
+        },
+
+        async fetchMessages() {
+            this.loading = true;
+            try {
+                const res = await fetch(this.fetchUrl, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.messages) {
+                        this.messages = data.messages;
+                        this.$nextTick(() => this.scrollToBottom());
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load chat history:', err);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async sendMessage() {
+            const text = this.newMessage.trim();
+            if (!text || this.sending) return;
+
+            this.sending = true;
+            this.statusBanner = null;
+
+            try {
+                const res = await fetch(this.sendUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': this.csrfToken,
+                    },
+                    body: JSON.stringify({
+                        message: text,
+                        channel: this.channel,
+                        direction: this.direction,
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    this.messages.push(data.log);
+                    this.newMessage = '';
+                    this.$nextTick(() => this.scrollToBottom());
+
+                    if (data.api_status === 'sent_via_meta_api') {
+                        this.statusBanner = { 
+                            type: 'success', 
+                            text: '✓ Message dispatched via Meta Instagram Graph API!' 
+                        };
+                    } else if (data.api_error) {
+                        this.statusBanner = { 
+                            type: 'warning', 
+                            text: '✓ Message delivered & logged in-platform (Meta note: ' + data.api_error + ')' 
+                        };
+                    } else {
+                        this.statusBanner = { 
+                            type: 'success', 
+                            text: '✓ Message sent and recorded in platform communication timeline!' 
+                        };
+                    }
+                } else {
+                    this.statusBanner = { 
+                        type: 'error', 
+                        text: data.message || 'Failed to send message.' 
+                    };
+                }
+            } catch (err) {
+                this.statusBanner = { 
+                    type: 'error', 
+                    text: 'Network error communicating with server.' 
+                };
+                console.error('Send message error:', err);
+            } finally {
+                this.sending = false;
+                setTimeout(() => {
+                    this.statusBanner = null;
+                }, 7000);
+            }
+        }
+    };
+}
+</script>
 @endsection

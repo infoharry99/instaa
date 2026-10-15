@@ -61,9 +61,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/leads/{lead}/lists', [LeadController::class, 'updateLists'])->name('leads.lists.update');
     Route::post('/leads/bulk/action', [LeadController::class, 'bulkAction'])->name('leads.bulk');
 
-    // Communication Center
+    // Communication Center & In-Platform Chat
     Route::get('/communication', [CommunicationController::class, 'index'])->name('communication.index');
     Route::post('/leads/{lead}/communication/log', [CommunicationController::class, 'logCommunication'])->name('communication.log');
+    Route::post('/leads/{lead}/chat/send', [CommunicationController::class, 'sendChatMessage'])->name('leads.chat.send');
+    Route::get('/leads/{lead}/chat/messages', [CommunicationController::class, 'getChatMessages'])->name('leads.chat.messages');
     Route::post('/communication/templates', [CommunicationController::class, 'storeTemplate'])->name('communication.templates.store');
     Route::delete('/communication/templates/{template}', [CommunicationController::class, 'deleteTemplate'])->name('communication.templates.destroy');
 
