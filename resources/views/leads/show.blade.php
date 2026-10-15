@@ -388,6 +388,25 @@
                     </div>
                 </div>
 
+                <!-- Clear Delivery Guidance Bar -->
+                <div class="px-5 py-2.5 bg-indigo-50/90 dark:bg-indigo-950/40 border-b border-indigo-100 dark:border-indigo-900/50 text-[11px] text-slate-700 dark:text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-base">💡</span>
+                        <span>
+                            Messages are saved in your CRM. To deliver this message directly into <strong>@{{ $lead->instagram_username }}'s Instagram inbox</strong>, click <strong>"Send & Deliver on IG ↗"</strong> below.
+                        </span>
+                    </div>
+                    @if($lead->instagram_username)
+                    <a href="https://ig.me/m/{{ $lead->instagram_username }}" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="inline-flex items-center space-x-1 font-bold text-rose-500 hover:text-rose-600 text-[11px] shrink-0">
+                        <span>Open Direct IG Chat</span>
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                    @endif
+                </div>
+
                 <!-- Chat Messages Scrollable Window -->
                 <div class="p-4 bg-slate-50/70 dark:bg-slate-950/50 min-h-[300px] max-h-[420px] overflow-y-auto space-y-3" x-ref="chatThread">
                     
@@ -457,8 +476,17 @@
                                                     <span class="text-emerald-200 font-bold" title="Directly Sent via Meta Instagram API">✓✓ Meta API</span>
                                                 </template>
                                                 <template x-if="msg.api_status !== 'sent_via_meta_api'">
-                                                    <span class="text-white/90" title="Delivered in Platform CRM">✓ In-Platform</span>
+                                                    <span class="text-white/90" title="Saved in Platform CRM">✓ In-Platform</span>
                                                 </template>
+
+                                                @if($lead->instagram_username)
+                                                <button type="button" 
+                                                        @click="copyAndDeliverOnInstagram(msg.text)" 
+                                                        class="ml-1 px-1.5 py-0.5 rounded bg-white/20 hover:bg-white/30 text-white font-bold text-[9px] transition-colors" 
+                                                        title="Copy text & deliver on Instagram DM">
+                                                    Deliver on IG ↗
+                                                </button>
+                                                @endif
                                             </span>
                                         </template>
                                         <template x-if="msg.channel">
@@ -516,7 +544,7 @@
                                       x-model="newMessage"
                                       @keydown.enter.prevent="if(!$event.shiftKey) sendMessage()"
                                       rows="3"
-                                      placeholder="Type your message to {{ $lead->business_name }} (@{{ $lead->instagram_username }})... (Press Enter to send, Shift+Enter for new line)"
+                                      placeholder="Type your message to {{ $lead->business_name }} ({{ '@' . ($lead->instagram_username ?? 'lead') }})... (Press Enter to send, Shift+Enter for new line)"
                                       class="w-full resize-none text-xs rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 p-3 pr-10 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 leading-relaxed"></textarea>
                         </div>
 
@@ -541,18 +569,30 @@
                                 <span class="text-[10px] text-slate-400 hidden sm:inline">Channel: <strong class="uppercase text-slate-600 dark:text-slate-300" x-text="channel.replace('_', ' ')"></strong></span>
                             </div>
 
-                            <!-- Send Action Button -->
-                            <button type="submit" 
-                                    :disabled="sending || !newMessage.trim()"
-                                    class="w-full sm:w-auto px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-rose-500 to-amber-500 hover:opacity-95 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold shadow-md shadow-rose-500/20 transition-all flex items-center justify-center space-x-2 shrink-0">
-                                <template x-if="sending">
-                                    <svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                                </template>
-                                <template x-if="!sending">
-                                    <svg class="w-4 h-4 transform rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
-                                </template>
-                                <span x-text="direction === 'outbound' ? 'Send Message' : 'Log Inbound Reply'"></span>
-                            </button>
+                            <!-- Send Action Buttons -->
+                            <div class="flex items-center space-x-2">
+                                @if($lead->instagram_username)
+                                <button type="button" 
+                                        @click="sendAndOpenInstagram()" 
+                                        :disabled="sending || !newMessage.trim()"
+                                        class="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-rose-500 to-amber-500 hover:opacity-95 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold shadow-md shadow-rose-500/20 transition-all flex items-center justify-center space-x-1.5 shrink-0"
+                                        title="Saves to CRM, copies text and launches Instagram DM">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                    </svg>
+                                    <span>Send & Deliver on IG ↗</span>
+                                </button>
+                                @endif
+
+                                <button type="submit" 
+                                        :disabled="sending || !newMessage.trim()"
+                                        class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors flex items-center space-x-1.5 shrink-0">
+                                    <template x-if="sending">
+                                        <svg class="animate-spin w-3.5 h-3.5 text-slate-600 dark:text-slate-300" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                    </template>
+                                    <span x-text="direction === 'outbound' ? 'Save in CRM' : 'Log Reply'"></span>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -964,6 +1004,39 @@ function leadLiveChatComponent(config) {
                     this.statusBanner = null;
                 }, 7000);
             }
+        },
+
+        copyAndDeliverOnInstagram(msgText) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(msgText);
+            }
+            if (this.leadHandle) {
+                window.open('https://ig.me/m/' + encodeURIComponent(this.leadHandle), '_blank');
+            }
+            this.statusBanner = { 
+                type: 'success', 
+                text: '✓ Message copied to clipboard! Opening Instagram DM with @' + this.leadHandle + ' — simply paste (Ctrl+V) and send.' 
+            };
+        },
+
+        async sendAndOpenInstagram() {
+            const text = this.newMessage.trim();
+            if (!text) return;
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text);
+            }
+
+            if (this.leadHandle) {
+                window.open('https://ig.me/m/' + encodeURIComponent(this.leadHandle), '_blank');
+            }
+
+            await this.sendMessage();
+
+            this.statusBanner = { 
+                type: 'success', 
+                text: '✓ Message saved in CRM & copied to clipboard! Paste (Ctrl+V) in Instagram to deliver directly to @' + this.leadHandle 
+            };
         }
     };
 }

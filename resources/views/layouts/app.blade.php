@@ -242,10 +242,20 @@
                     </button>
 
                     <!-- Meta / Instagram Status Badge -->
+                    @php
+                        $activeSocial = \App\Models\ConnectedSocialAccount::where('company_id', Auth::user()->company_id)->where('is_connected', true)->first();
+                    @endphp
+                    @if($activeSocial)
                     <a href="{{ route('social.index') }}" class="hidden md:flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-medium border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span>Meta API Active</span>
+                        <span>Meta API: {{ '@' . $activeSocial->username }}</span>
                     </a>
+                    @else
+                    <a href="{{ route('social.index') }}" class="hidden md:flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-medium border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span>Connect Meta Account</span>
+                    </a>
+                    @endif
                 </div>
             </header>
 
